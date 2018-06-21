@@ -1,0 +1,56 @@
+version: '2.1'
+services:
+    my-java-app:
+        image: openjdk:slim
+        ports:
+            - "7000:8080"
+            - "5000:8000"
+        environment:
+            - JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y
+        #     - HTTP_PROXY=sjc1intproxy01.crd.ge.com:8080
+        #     - HTTPS_PROXY=sjc1intproxy01.crd.ge.com:8080
+        #     - no_proxy=localhost,127.0.0.1,ge.com
+        volumes:
+            - ./demo-app/:/usr/app
+        entrypoint: ["/usr/bin/java","-Xdebug","-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y","-jar","/usr/app/complete/target/gs-relational-data-access-0.1.0.jar"]
+        # dns:
+        #     - 10.220.220.220
+        #     - 10.220.220.221    
+        tty: true
+        depends_on:
+            - db
+        container_name: demo-app-container
+    db:
+      image: postgres
+      restart: always
+      volumes:
+         - postgresql:/var/lib/postgresql/data/pgdata
+      environment: 
+        - POSTGRES_PASSWORD=postgres@123
+        - POSTGRES_USER=503017576
+        - POSTGRES_DB=postgres
+        - PGDATA=/var/lib/postgresql/data/pgdata
+      container_name: demo-postgres-db
+      hostname: pg
+    
+    # node_container:
+    #         image: preethampatnaik/predixci-node8-ubuntu
+    #         container_name: node_application
+    #         hostname: node
+    pgadmin: 
+        image: jacksoncage/phppgadmin
+        environment:
+            - POSTGRES_HOST=pg
+            - POSTGRES_PORT=5432
+            - POSTGRES_DEFAULTDB=postgres
+            - APACHE_SERVERNAME=localhost
+        ports:
+            - "5005:80"
+        
+
+# had issues while mounting folders in windows, so first created a volume using docker cli and then mounted
+volumes:
+    postgresql:
+        external: true
+            
+
