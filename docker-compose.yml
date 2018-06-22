@@ -1,18 +1,15 @@
 version: '2.1'
 services:
     my-java-app:
-        image: openjdk:slim
+        build: .
         ports:
-            - "7000:8080"
+            - "7000:8090"
             - "5000:8000"
-        environment:
-            - JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y
-        #     - HTTP_PROXY=sjc1intproxy01.crd.ge.com:8080
-        #     - HTTPS_PROXY=sjc1intproxy01.crd.ge.com:8080
-        #     - no_proxy=localhost,127.0.0.1,ge.com
+        #environment:
+            #- JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y
         volumes:
             - ./demo-app/:/usr/app
-        entrypoint: ["/usr/bin/java","-Xdebug","-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y","-jar","/usr/app/complete/target/gs-relational-data-access-0.1.0.jar"]
+        command: ["/usr/bin/java","-Xdebug","-Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=y","-jar","/usr/src/app/target/gs-relational-data-access-0.1.0.jar"]
         # dns:
         #     - 10.220.220.220
         #     - 10.220.220.221    
@@ -20,6 +17,7 @@ services:
         depends_on:
             - db
         container_name: demo-app-container
+        restart: always
     db:
       image: postgres
       restart: always
